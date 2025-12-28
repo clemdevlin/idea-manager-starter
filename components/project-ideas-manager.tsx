@@ -218,8 +218,13 @@ export function ProjectIdeasManager() {
     categoryId: string;
   }) => {
     console.log("[v0] Idea submitted:", data);
-    await createIdea(data);
-    toast.success("Idea created successfully");
+    const result = await createIdea(data);
+    if(result.success){
+      toast.success("Idea created successfully");
+    } else {
+      console.log(result.error);
+      toast.error("Failed to create idea");
+    }
   };
 
   const mockUser = {
