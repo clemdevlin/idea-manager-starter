@@ -17,6 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { CategoryForm } from "@/components/category-form";
 import { IdeaForm } from "@/components/idea-form";
+import { createIdea } from "@/lib/ideas";
+import { toast } from "sonner";
 
 // Mock data types
 interface Category {
@@ -209,14 +211,15 @@ export function ProjectIdeasManager() {
     // Here you would typically save to database
   };
 
-  const handleIdeaSubmit = (data: {
+  const handleIdeaSubmit = async (data: {
     title: string;
     slug: string;
     description: string;
     categoryId: string;
   }) => {
     console.log("[v0] Idea submitted:", data);
-    // Here you would typically save to database
+    await createIdea(data);
+    toast.success("Idea created successfully");
   };
 
   const mockUser = {

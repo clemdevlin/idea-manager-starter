@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Navbar } from "../components/navbar";
 import { Suspense } from "react";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Idea Manager",
@@ -18,11 +19,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <Suspense fallback={<div>Loading...</div>}>
           <Navbar />
           <main className="">{children}</main>
+          <Toaster position="bottom-right" richColors />
         </Suspense>
         <Analytics />
       </body>
