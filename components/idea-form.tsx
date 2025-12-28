@@ -68,7 +68,7 @@ export function IdeaForm({ open, onOpenChange, onSubmit, categoryId, initialData
           <SheetTitle>{initialData ? "Edit Idea" : "Add New Idea"}</SheetTitle>
         </SheetHeader>
 
-        <ScrollArea className="flex-1 pr-6">
+        <ScrollArea className="flex-1 px-6">
           <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6 pb-6">
             <div className="space-y-2">
               <Label htmlFor="idea-title">Title</Label>

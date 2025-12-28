@@ -27,6 +27,41 @@ interface RichTextEditorProps {
 export function RichTextEditor({ value, onChange, placeholder, className }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null)
   const [isFocused, setIsFocused] = useState(false)
+  const [formats, setFormats] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    ul: false,
+    ol: false,
+  })
+
+  useEffect(() => {
+    const updateState = () => {
+      setFormats({
+        bold: document.queryCommandState("bold"),
+        italic: document.queryCommandState("italic"),
+        underline: document.queryCommandState("underline"),
+        ul: document.queryCommandState("insertUnorderedList"),
+        ol: document.queryCommandState("insertOrderedList"),
+      })
+    }
+
+    document.addEventListener("selectionchange", updateState)
+    return () => document.removeEventListener("selectionchange", updateState)
+  }, [])
+
+  const isHeading = (level: number) => {
+    const sel = window.getSelection()
+    if (!sel || !sel.anchorNode) return false
+
+    const el =
+      sel.anchorNode instanceof Element
+        ? sel.anchorNode
+        : sel.anchorNode.parentElement
+
+    return el?.closest(`h${level}`) !== null
+  }
+
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== value) {
@@ -61,23 +96,23 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
     <div className={cn("border rounded-lg overflow-hidden", className)}>
       {/* Toolbar */}
       <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1">
-        <Button type="button" variant="ghost" size="sm" onClick={() => formatBlock("h1")} className="h-8 px-2">
+        <Button type="button" variant="ghost" size="sm" onClick={() => formatBlock("h1")} className={cn("h-8 px-2", isHeading(1) && "bg-gray-300")}>
           <Heading1 className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => formatBlock("h2")} className="h-8 px-2">
+        <Button type="button" variant="ghost" size="sm" onClick={() => formatBlock("h2")} className={cn("h-8 px-2", isHeading(2) && "bg-gray-300")}>
           <Heading2 className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => formatBlock("h3")} className="h-8 px-2">
+        <Button type="button" variant="ghost" size="sm" onClick={() => formatBlock("h3")} className={cn("h-8 px-2", isHeading(3) && "bg-gray-300")}>
           <Heading3 className="h-4 w-4" />
         </Button>
         <div className="w-px h-6 bg-border mx-1" />
-        <Button type="button" variant="ghost" size="sm" onClick={() => execCommand("bold")} className="h-8 px-2">
+        <Button type="button" variant="ghost" size="sm" onClick={() => execCommand("bold")} className={cn("h-8 px-2", formats.bold && "bg-gray-300")}>
           <Bold className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => execCommand("italic")} className="h-8 px-2">
+        <Button type="button" variant="ghost" size="sm" onClick={() => execCommand("italic")} className={cn("h-8 px-2", formats.italic && "bg-gray-300")}>
           <Italic className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => execCommand("underline")} className="h-8 px-2">
+        <Button type="button" variant="ghost" size="sm" onClick={() => execCommand("underline")} className={cn("h-8 px-2", formats.underline && "bg-gray-300")}>
           <Underline className="h-4 w-4" />
         </Button>
         <div className="w-px h-6 bg-border mx-1" />
@@ -86,7 +121,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
           variant="ghost"
           size="sm"
           onClick={() => execCommand("insertUnorderedList")}
-          className="h-8 px-2"
+          className={cn("h-8 px-2", formats.ul && "bg-gray-300")}
         >
           <List className="h-4 w-4" />
         </Button>
@@ -95,7 +130,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
           variant="ghost"
           size="sm"
           onClick={() => execCommand("insertOrderedList")}
-          className="h-8 px-2"
+          className={cn("h-8 px-2", formats.ol && "bg-gray-300")}
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
@@ -137,11 +172,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
           overflowWrap: "break-word",
         }}
         suppressContentEditableWarning={true}
-      >
-        {!value && !isFocused && (
-          <div className="text-muted-foreground pointer-events-none">{placeholder || "Start writing..."}</div>
-        )}
-      </div>
+      />
     </div>
   )
 }
